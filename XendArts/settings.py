@@ -17,9 +17,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'xendapp.apps.XendappConfig',
 
     'rest_framework',
-    'rest_framework_simplejwt.token_blacklist',
+    'rest_framework.authtoken',
     'crispy_forms',
     'django_filters',
     'corsheaders',
@@ -46,6 +47,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.AllowAny',),
@@ -109,6 +111,7 @@ DATABASES = {
 }
 
 AUTH_PASSWORD_VALIDATORS = []
+AUTH_USER_MODEL = 'xendapp.User'
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/

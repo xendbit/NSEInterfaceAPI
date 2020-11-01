@@ -85,7 +85,7 @@ def validate_foreign_key(value):
         )
 
 
-class User(AbstractBaseUser):
+class User(PermissionsMixin, AbstractBaseUser):
     ROLE_CHOICES = [
         ('System Admin', 'System Admin'),
     ]
@@ -95,7 +95,7 @@ class User(AbstractBaseUser):
     password = models.CharField(db_column='PASSWORD', max_length=100)
     phone_number = models.CharField(db_column='PHONE_NUMBER', max_length=20)
     full_name = models.CharField(db_column='FULL_NAME', max_length=100, blank=True, null=True)
-    is_staff = models.BooleanField(db_column='IS_STAFF', default=False)
+    is_staff = models.BooleanField(db_column='is_staff', default=False)
     is_active = models.BooleanField(db_column='IS_ACTIVE', blank=True)
     is_superuser = models.BooleanField(db_column='IS_SUPERUSER', default=False)
     role = models.CharField(max_length=50, db_column='ROLE', null=True, blank=True, choices=ROLE_CHOICES)

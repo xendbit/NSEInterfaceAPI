@@ -1,12 +1,14 @@
+import json
 import os
 import random
 import string
 
 import requests
-from rest_framework.decorators import api_view
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 
-from .. import models, serializers, utils
+from .. import models, serializers, utils, permissions
 from . import sterling_views
 
 product_code = os.getenv('STERLING_PRODUCT_CODE')
@@ -14,8 +16,9 @@ accountt_officer_code = os.getenv('STERLING_ACCT_OFF_CODE')
 asset_transfer_url = os.getenv('ASSET_TRANSFER_URL')
 
 
-
 @api_view(http_method_names=['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([permissions.IsArtexchange])
 def user_registration(request):
     '''Called when a user is registered on ArtExchange platform'''
     data = request.data
@@ -65,12 +68,16 @@ def user_registration(request):
         )
 
         return Response({'detail': 'Data Successfully processed', 'userId': user_id, 'wallet_account': wallet_account_number })
+    else:
+        return Response(resp_json['Message'].get('CreationMessage'), status=status)
 
 
 @api_view(http_method_names=['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([permissions.IsArtexchange])
 def asset_buy_request(request):
     '''Gets called when an investor places an asset buy request'''
-    asset_excahneg_url = f''
+
     data = request.data
     serializer = serializers.BuyRequestSerializer(data=data)
     serializer.is_valid(raise_exception=True)
@@ -109,6 +116,8 @@ def asset_buy_request(request):
 
 
 @api_view(http_method_names=['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([permissions.IsArtexchange])
 def asset_listing(request):
 
     data = request.data

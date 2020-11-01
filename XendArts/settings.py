@@ -21,6 +21,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_simplejwt.token_blacklist',
     'crispy_forms',
     'django_filters',
     'corsheaders',
@@ -73,7 +74,10 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
-    'AUTH_HEADER_TYPES': 'Bearer'
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=15),
+    'AUTH_HEADER_TYPES': 'Bearer',
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True
 }
 
 TEMPLATES = [

@@ -1,11 +1,15 @@
+import os
 from django.contrib.auth.hashers import make_password
 from rest_framework import generics, status
-from rest_framework.decorators import api_view
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.authtoken.models import Token
 
-from .. import models, serializers, utils
+from .. import models, serializers, utils, permissions
 
+artexchange_email = os.getenv('ARTEXCHANGE_EMAIL')
 
 class UserList(generics.ListCreateAPIView):
     """
@@ -57,3 +61,31 @@ def manage_user_roles(request, pk):
     user.save()
 
     return Response({'detail': 'Role successfully set'}, status=status.HTTP_200_OK)
+
+
+@api_view(http_method_names=['POST'])
+@permission_classes([IsAuthenticated])
+def logout(request):
+    '''Blacklists a refresh token'''
+
+    refresh_token = request.data["refresh_token"]
+    try:
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+        return Response({'detail': 'Logout successful'}, status=status.HTTP_205_RESET_CONTENT)
+    except Exception as exec:
+        return Response({'detail': str(exec)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view()
+@permission_classes([permissions.IsXendAdmin])
+def get_token(request):
+    '''returns a token for the ArtExchange user'''
+    user = models.User.objects.get(email=artexchange_email)
+    existing_tokens = Token.objects.filter(user_id=user.id)
+    if existing_tokens.exists():
+        for token in existing_tokens:
+            token.delete()
+    token = Token.objects.create(user=user)
+
+    return Response({ 'token' : str(token) })

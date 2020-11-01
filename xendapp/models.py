@@ -85,7 +85,7 @@ def validate_foreign_key(value):
         )
 
 
-class User(PermissionsMixin, AbstractBaseUser):
+class User(AbstractBaseUser):
     ROLE_CHOICES = [
         ('System Admin', 'System Admin'),
     ]
@@ -98,6 +98,7 @@ class User(PermissionsMixin, AbstractBaseUser):
     is_active = models.BooleanField(db_column='IS_ACTIVE', blank=True)
     is_superuser = models.BooleanField(db_column='IS_SUPERUSER', default=False)
     role = models.CharField(max_length=50, db_column='ROLE', null=True, blank=True, choices=ROLE_CHOICES)
+    image_url = models.CharField(max_length=400, db_column='IMAGE_URL', blank=True, default='')
     is_deleted = models.BooleanField(db_column='IS_DELETED', default=False)
     created_at = models.DateTimeField(db_column='CREATED_AT', auto_now_add=True)
     updated_at = models.DateTimeField(db_column='UPDATED_AT', auto_now=True)
@@ -180,5 +181,4 @@ class BankTransaction(BaseAbstractModel):
     class Meta:
         managed = True
         db_table = 'XB_BANK_TRANSACTION'
-
 

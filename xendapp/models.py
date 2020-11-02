@@ -143,6 +143,18 @@ class ArtExchangeUser(BaseAbstractModel):
         db_table = 'XB_ART_EXCHANGE_USER'
 
 
+class ArtListing(BaseAbstractModel):
+
+    seller_id = models.ForeignKey(ArtExchangeUser, on_delete=models.CASCADE, db_column='SELLER_ID')
+    security = models.CharField(db_column='SECURITY', unique=True, max_length=100)
+    number_of_tokens = models.IntegerField(db_column='NUMBER_OF_TOKEN')
+    artwork_value = models.FloatField(db_column='ARTWORK_VALUE')
+
+    class Meta:
+        managed = True
+        db_table = 'XB_ART_LISTING'
+
+
 class BankAccount(BaseAbstractModel):
     account_number = models.CharField(max_length=10, db_column='ACCOUNT_NUMBER', unique=True)
     fullname = models.CharField(max_length=200, db_column='FULL_NAME', null=True)

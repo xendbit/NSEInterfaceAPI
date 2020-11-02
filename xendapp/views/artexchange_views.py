@@ -106,13 +106,14 @@ def asset_buy_request(request):
             'market_type': market_type
         }
 
-        resp = requests.post(f'{asset_transfer_url}', json=blockchain_data, headers={'Accept': 'application/json', 'Content-Type': 'application/json'})
-        if resp.ok:
-            return Response({'detail': 'Request successfully completed.'})
-        else:
-            return Response({'detail': f'Request not successful: {resp.text}'}) #TODO josonify respose and pick the relevant message
-
-    return Response({'detail': 'Insufficient fund in the account'}, status=400)
+    #     resp = requests.post(f'{asset_transfer_url}', json=blockchain_data, headers={'Accept': 'application/json', 'Content-Type': 'application/json'})
+    #     if resp.ok:
+    #         return Response({'detail': 'Request successfully completed.'})
+    #     else:
+    #         return Response({'detail': f'Request not successful: {resp.text}'}) #TODO josonify respose and pick the relevant message
+    #
+    # return Response({'detail': 'Insufficient fund in the account'}, status=400)
+    return Response({'detail': 'Request successfully completed.'})
 
 
 @api_view(http_method_names=['POST'])
@@ -134,9 +135,12 @@ def asset_listing(request):
         'listing_end_date': serializer.validated_data.get('listing_end_date')
     }
 
-    resp = requests.post(f'{asset_transfer_url}', json=data,  headers={'Accept': 'application/json', 'Content-Type': 'application/json'})
-    if resp.ok:
-        return Response({'detail': 'Request successfully completed.'}) # TODO: Use the right blockchain url
-    else:
-        return Response(
-            {'detail': f'Request not successful: {resp.text}'})  # TODO josonify respose and pick the relevant message
+    resp = utils.generate_qrcode(serializer.validated_data.get('security'))
+    return Response({'detail': 'Data Successfully processed.', 'qr_code': resp})
+
+    # resp = requests.post(f'{asset_transfer_url}', json=data,  headers={'Accept': 'application/json', 'Content-Type': 'application/json'})
+    # if resp.ok:
+    #     return Response({'detail': 'Request successfully completed.'}) # TODO: Use the right blockchain url
+    # else:
+    #     return Response(
+    #         {'detail': f'Request not successful: {resp.text}'})  # TODO josonify respose and pick the relevant message

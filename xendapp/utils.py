@@ -1,5 +1,10 @@
+import hashlib
+import io
 import os
 
+from PIL import Image
+import cloudinary
+import qrcode
 import requests
 from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 from rest_framework.response import Response
@@ -65,6 +70,36 @@ def update_all_sterling_accounts():
     account_qs = models.BankAccount.objects.filter(bank='sterling')
     for account in account_qs:
         update_one_sterling_accounts(account.account_number)
+
+
+def upload_image(image):
+    cloudinary.config(
+        cloud_name=os.getenv('CLOUD_NAME'),
+        api_key=os.getenv('CLOUDINARY_API_KEY'),
+        api_secret=os.getenv('CLOUDINARY_API_SECRET')
+    )
+    bytes_object = io.BytesIO()
+    image.save(bytes_object, 'jpeg')
+    im_bytes = bytes_object.getvalue()
+    response = cloudinary.uploader.upload(im_bytes)
+    return response['url']
+
+def generate_qrcode(input_string):
+    '''Generates a QR code'''
+
+    hash_input = input_string
+    hash = hashlib.sha512(hash_input.encode('utf-8')).hexdigest()
+
+    qr = qrcode.QRCode(
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(hash)
+    qr.make(fit=True)
+
+    img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
+    return upload_image(img)
 
 
 BANK_CODES_CHOICES = [

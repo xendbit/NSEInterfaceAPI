@@ -7,6 +7,7 @@ from .views import artexchange_views, auth_views
 urlpatterns = [
     path('artexchange/new-user', artexchange_views.user_registration, name='artuser_registration'),
     path('artexchange/buy-request', artexchange_views.asset_buy_request, name='buy_request'),
+    path('artexchange/listing', artexchange_views.asset_listing, name='listing'),
     path('auth/signup', auth_views.UserList.as_view() , name='signup'),
     path('auth/role/<int:pk>', auth_views.manage_user_roles, name='assign_role'),
     path('auth/login', TokenObtainPairView.as_view(), name='auth_login'),

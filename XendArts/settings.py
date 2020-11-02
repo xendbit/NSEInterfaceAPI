@@ -2,6 +2,8 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+import django_heroku
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY')
@@ -131,3 +133,7 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+ADMINS = [('XendCredit Admin', 'admin@xendcredit.com'), ('Victor', 'victor.adukwu@xendcredit.com')]
+
+django_heroku.settings(locals())

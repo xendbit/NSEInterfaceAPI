@@ -41,6 +41,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 class BuyRequestSerializer(serializers.Serializer):
     buyer_id = serializers.CharField()
     seller_id = serializers.CharField()
+    issuer_id = serializers.CharField()
     security = serializers.CharField()
     number_of_tokens = serializers.IntegerField()
     unit_price = serializers.FloatField()
@@ -50,13 +51,13 @@ class BuyRequestSerializer(serializers.Serializer):
 
 
 class ListRequestSerializer(serializers.Serializer):
-    investor_id = serializers.CharField()
+    issuer_id = serializers.CharField()
     security = serializers.CharField()
     number_of_tokens = serializers.IntegerField()
     artwork_value = serializers.FloatField()
     unit_price = serializers.FloatField()
-    listing_start_date = serializers.DateField()
-    listing_end_date = serializers.DateField()
+    listing_start_date = serializers.CharField()
+    listing_end_date = serializers.CharField()
 
 
 class FundTransferSerializer(serializers.Serializer):

@@ -137,6 +137,10 @@ class ArtExchangeUser(BaseAbstractModel):
     bank_account_number = models.CharField(max_length=11, db_column='BANK_ACCOUNT_NUMBER', null=True)
     wallet_account_number = models.CharField(max_length=11, db_column='WALLET_ACCOUNT_NUMBER')
     bvn = models.CharField(max_length=12, db_column='BVN')
+    password = models.CharField(max_length=300, db_column='PASSWORD', null=True)
+    private_key = models.CharField(max_length=300, db_column='PRIVATE_KEY', null=True)
+    blockchain_address = models.CharField(max_length=200, db_column='BLOCKCHAIN_ADDRESS', null=True)
+    blockchain_id = models.IntegerField(null=True, db_column='BLOCKCHAIN_ID')
 
     class Meta:
         managed = True
@@ -149,6 +153,8 @@ class ArtListing(BaseAbstractModel):
     security = models.CharField(db_column='SECURITY', unique=True, max_length=100)
     number_of_tokens = models.IntegerField(db_column='NUMBER_OF_TOKEN')
     artwork_value = models.FloatField(db_column='ARTWORK_VALUE')
+    qr_code = models.CharField(max_length=255, db_column='QR_CODE', null=True)
+    blockchain_id = models.CharField(db_column='BLOCKCHAIN_ID', max_length=10, null=True)
 
     class Meta:
         managed = True
@@ -195,3 +201,30 @@ class BankTransaction(BaseAbstractModel):
         managed = True
         db_table = 'XB_BANK_TRANSACTION'
 
+
+class PendingAssetTransfer(BaseAbstractModel):
+    buyer_id = models.IntegerField(db_column='BUYER_ID', null=True)
+    asset_issuer_id = models.IntegerField(db_column='ASSET_ISSUER_ID', null=True)
+    seller_id = models.IntegerField(db_column='SELLER_ID')
+    asset_name = models.CharField(db_column='ASSET_NAME', max_length=20)
+    quantity =  models.IntegerField(db_column='QUANTITY')
+    unit_price = models.FloatField(db_column='UNIT_PRICE')
+    market_type = models.CharField(db_column='MARKET_TYPE', max_length=20)
+
+    class Meta:
+        managed = True
+        db_table = 'XB_PENDING_ASSET_TRANSFER'
+
+
+'''
+class PendingSterlingAccountCreation(BaseAbstractModel):
+    lastname = models.CharField(db_column='LASTNAME', max_length=50)
+    other_names = models.CharField(db_column='OTHER_NAMES', max_length=100)
+    bvn = models.CharField(db_column='BVN', max_length=12)
+    is_agent = models.BooleanField(db_column='IS_AGENT', default=False)
+    message = models.CharField(db_column='MESSAGE', max_length=255)
+
+    class Meta:
+        managed = True
+        db_table = 'XB_PENDING_STERLING_ACCOUNT'
+'''

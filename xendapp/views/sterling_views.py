@@ -129,15 +129,13 @@ def sterling_transfer(request_data):
     url = f'{sterling_domain}/ThirdPartyAPIService/APIService/Transfer/LocalFundsTransfer'
     pnd_deact_url = f'{sterling_domain}/ThirdPartyAPIService/APIService/Account/DeActivatePND'
 
-    serializer = serializers.FundTransferSerializer(data=request_data)
-    serializer.is_valid(raise_exception=True)
 
-    from_account_number = serializer.validated_data.get('from_account_number')
-    to_account_number = serializer.validated_data.get('to_account_number')
-    narration = serializer.validated_data.get('narration')
-    amount = serializer.validated_data.get('amount')
+    from_account_number = request_data.get('from_account_number')
+    to_account_number = request_data.get('to_account_number')
+    narration = request_data.get('narration')
+    amount = request_data.get('amount')
 
-    if not models.BankAccount.objects.filter(account_number=from_account_number).exist():
+    if not models.BankAccount.objects.filter(account_number=from_account_number).exists():
         raise ObjectDoesNotExist(f'Debit account not found: {from_account_number}')
 
     data = {
@@ -154,15 +152,6 @@ def sterling_transfer(request_data):
         'Accept': 'application/json',
         'Content-Type': 'application/json'
     }
-
-    deact_data = {
-        'AccountNo': from_account_number,
-        'AuthenticationCode': auth_key
-    }
-    deact_resp = requests.post(pnd_deact_url, json=deact_data, headers=headers)
-    deact_json = deact_resp.json()
-    if deact_json.get('RequestStatus') is False:
-        raise Exception('PND deactivation not successful')
 
     resp = requests.post(url, json=data, headers=headers)
     resp_json = resp.json()

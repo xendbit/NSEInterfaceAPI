@@ -12,6 +12,9 @@ from rest_framework.response import Response
 from xendapp import models
 
 
+blockchain_domain = os.getenv('BLOCKCHAIN_DOMAIN')
+blockchain_api_key = os.getenv('BLOCKCHAIN_API_KEY')
+
 def custom_exception_handler(exc, context):
 
     msg = exc.detail if hasattr(exc, 'detail') else str(exc)
@@ -26,21 +29,27 @@ def convert_dict_keys_to_camel_case(input_dict):
     return input_dict
 
 
-def update_blockchain(account_number, amount):
+def update_blockchain(amount, user_id):
     data = {
-        'account_number': account_number,
+        'user_id': user_id,
         'amount': amount
     }
 
-    resp = requests.post('https://lb.xendbit.com/api/x/beneficiary/update-blockchain', json=data, headers={'Accept': 'application/json',
-    'Content-Type': 'application/json'})
+    headers = {
+        'api-key': blockchain_api_key,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    }
+
+    resp = requests.post(f'{blockchain_domain}/user/set-balance', json=data, headers=headers)
 
     if not resp.ok:
-        raise Exception(f'Blockchain account update was not successful: {resp.text}') # TODO josonify resp and get the relevant message
+        raise Exception(f'Blockchain account update was not successful: {resp.json().get("error")[0]}')
 
 def update_one_sterling_accounts(account_number):
 
     account = models.BankAccount.objects.get(account_number=account_number)
+    user = models.ArtExchangeUser.objects.get(wallet_account_number=account_number)
     old_balance = account.balance
     auth_token = os.getenv('STERLING_AUTH_KEY')
     version = os.getenv('STERLING_API_VERSION')
@@ -62,7 +71,7 @@ def update_one_sterling_accounts(account_number):
     if old_balance != new_balance:
         account.balance = new_balance
         account.save()
-        update_blockchain(account_number, new_balance)
+        update_blockchain(new_balance, user.id)
 
 
 def update_all_sterling_accounts():
@@ -100,6 +109,25 @@ def generate_qrcode(input_string):
 
     img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
     return upload_image(img)
+
+
+def clear_pending_asset_transfer(): # TODO Set up a cron job to run this periodically
+    for rcd in models.PendingAssetTransfer.objects.all():
+        blockchain_data = {
+            'recipientId': rcd.recipient_id,
+            'asset_issuer_id': rcd.asset_issuer_id,
+            'senderId': rcd.sender_id,
+            'assetName': rcd.asset_name,
+            'quantity': rcd.quantity,
+            'unitPrice': rcd.unit_price,
+            'marketType': rcd.market_type
+        }
+
+        asset_transfer_url = f'{blockchain_domain}assets/transfer'
+        resp = requests.post(f'{asset_transfer_url}', json=blockchain_data,
+                             headers={'Accept': 'application/json', 'Content-Type': 'application/json'})
+        if resp.ok:
+            rcd.delete()
 
 
 BANK_CODES_CHOICES = [

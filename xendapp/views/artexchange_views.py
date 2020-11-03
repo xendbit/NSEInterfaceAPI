@@ -4,6 +4,7 @@ import random
 import string
 
 import requests
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
@@ -16,6 +17,7 @@ accountt_officer_code = os.getenv('STERLING_ACCT_OFF_CODE')
 asset_transfer_url = os.getenv('ASSET_TRANSFER_URL')
 
 
+@swagger_auto_schema(method='post', request_body=serializers.RegistrationSerializer)
 @api_view(http_method_names=['POST'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([permissions.IsArtexchange])
@@ -72,6 +74,7 @@ def user_registration(request):
         return Response(resp_json['Message'].get('CreationMessage'), status=status)
 
 
+@swagger_auto_schema(method='post', request_body=serializers.BuyRequestSerializer)
 @api_view(http_method_names=['POST'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([permissions.IsArtexchange])
@@ -116,6 +119,8 @@ def asset_buy_request(request):
     return Response({'detail': 'Request successfully completed.'})
 
 
+
+@swagger_auto_schema(method='post', request_body=serializers.ListRequestSerializer)
 @api_view(http_method_names=['POST'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([permissions.IsArtexchange])

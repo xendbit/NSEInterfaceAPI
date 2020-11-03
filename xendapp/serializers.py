@@ -17,7 +17,7 @@ class AdminCreateUserSerializer(serializers.ModelSerializer):
         model = User
         exclude = ['is_superuser', 'last_login']
         write_only_fields = ('password', 'confirm_password')
-        read_only_fields = ['id', 'created_at', 'role', 'username', 'is_active', 'is_staff']
+        read_only_fields = ['id', 'created_at', 'role', 'username', 'is_active', 'is_staff', 'image_url', 'groups', 'user_permissions', 'is_deleted']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -35,7 +35,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ArtExchangeUser
         fields = '__all__'
-        read_only_fields = ['isDeleted', 'createdAt', 'updatedAt', 'wallet_account_number']
+        read_only_fields = ['is_deleted', 'createdAt', 'updatedAt', 'wallet_account_number']
 
 
 class BuyRequestSerializer(serializers.Serializer):

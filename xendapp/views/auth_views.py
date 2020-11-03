@@ -11,7 +11,7 @@ from .. import models, serializers, utils, permissions
 
 artexchange_email = os.getenv('ARTEXCHANGE_EMAIL')
 
-class UserList(generics.ListCreateAPIView):
+class UserList(generics.CreateAPIView):
     """
         get:
         Return the list of all user objects
@@ -21,7 +21,7 @@ class UserList(generics.ListCreateAPIView):
     """
 
     queryset = models.User.objects.filter(is_deleted=False)
-    # permission_classes = [IsAuthenticated]
+    # permission_classes = [permissions.IsXendAdmin]
     serializer_class = serializers.AdminCreateUserSerializer
 
     def post(self, request):
@@ -44,7 +44,7 @@ class UserList(generics.ListCreateAPIView):
 
 
 @api_view()
-# @permission_classes([permissions.IsXendAdmin])
+@permission_classes([permissions.IsXendAdmin])
 def manage_user_roles(request, pk):
     '''Assign a role to a user'''
 

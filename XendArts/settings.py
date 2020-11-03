@@ -110,7 +110,8 @@ DATABASES = {
         'HOST': os.getenv('DB_HOST'),
         'PORT': os.getenv('DB_PORT'),
         'OPTIONS': {
-          'isolation_level': 'repeatable read'
+            'isolation_level': 'repeatable read',
+            'sslmode': ''
         }
 
     }
@@ -137,3 +138,4 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 ADMINS = [('XendCredit Admin', 'admin@xendcredit.com'), ('Victor', 'victor.adukwu@xendcredit.com')]
 
 django_heroku.settings(locals())
+del DATABASES['default']['OPTIONS']['sslmode']

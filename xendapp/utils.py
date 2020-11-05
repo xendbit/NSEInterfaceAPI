@@ -2,12 +2,12 @@ import hashlib
 import io
 import os
 
-from PIL import Image
+from apscheduler.schedulers.background import BackgroundScheduler
+from rest_framework.exceptions import NotAuthenticated, PermissionDenied
+from rest_framework.response import Response
 import cloudinary
 import qrcode
 import requests
-from rest_framework.exceptions import NotAuthenticated, PermissionDenied
-from rest_framework.response import Response
 
 from xendapp import models
 
@@ -112,22 +112,35 @@ def generate_qrcode(input_string):
 
 
 def clear_pending_asset_transfer(): # TODO Set up a cron job to run this periodically
-    for rcd in models.PendingAssetTransfer.objects.all():
-        blockchain_data = {
-            'recipientId': rcd.recipient_id,
-            'asset_issuer_id': rcd.asset_issuer_id,
-            'senderId': rcd.sender_id,
-            'assetName': rcd.asset_name,
-            'quantity': rcd.quantity,
-            'unitPrice': rcd.unit_price,
-            'marketType': rcd.market_type
-        }
 
-        asset_transfer_url = f'{blockchain_domain}assets/transfer'
-        resp = requests.post(f'{asset_transfer_url}', json=blockchain_data,
-                             headers={'Accept': 'application/json', 'Content-Type': 'application/json'})
-        if resp.ok:
-            rcd.delete()
+    if models.PendingAssetTransfer.objects.all().exists():
+        for rcd in models.PendingAssetTransfer.objects.all():
+            blockchain_data = {
+                'buyerId': rcd.buyer_id,
+                'assetIssuerId': rcd.asset_issuer_id,
+                'sellerId': rcd.seller_id,
+                'assetName': rcd.asset_name,
+                'quantity': rcd.quantity,
+                'price': rcd.unit_price,
+                'marketType': rcd.market_type
+            }
+
+            headers = {
+                'api-key': blockchain_api_key,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+
+            asset_transfer_url = f'{blockchain_domain}assets/buy'
+            resp = requests.post(f'{asset_transfer_url}', json=blockchain_data, headers=headers)
+            if resp.ok:
+                rcd.delete()
+
+
+def start():
+    scheduler = BackgroundScheduler(job_defaults={'misfire_grace_time': 15*60})
+    scheduler.add_job(clear_pending_asset_transfer, 'interval', minutes=15)
+    scheduler.start()
 
 
 BANK_CODES_CHOICES = [

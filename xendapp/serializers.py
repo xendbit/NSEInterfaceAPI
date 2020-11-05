@@ -1,3 +1,4 @@
+from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
 from .models import User, ArtExchangeUser, BankAccount, BankTransaction
@@ -74,3 +75,16 @@ class NewAccountSerializer(serializers.Serializer):
     middle_name = serializers.CharField(required=False)
     bvn = serializers.CharField()
     email = serializers.CharField()
+
+
+class PasswordChangeSerializer(serializers.Serializer):
+    """
+    Used by the password-change endpoint.
+    """
+    current_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+    def validate_new_password(self, value):
+        validate_password(value)
+        return value
+

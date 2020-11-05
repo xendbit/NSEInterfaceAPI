@@ -2,8 +2,10 @@ import os
 from django.contrib.auth.hashers import make_password
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.generics import UpdateAPIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.authtoken.models import Token
 
@@ -89,3 +91,28 @@ def get_token(request):
     token = Token.objects.create(user=user)
 
     return Response({ 'token' : str(token) })
+
+
+class PasswordUpdateView(UpdateAPIView):
+    """
+    put:
+        Update a user password
+    """
+    permission_classes = (IsAuthenticated, )
+    serializer_class = serializers.PasswordChangeSerializer
+
+    def get_object(self):
+        return self.request.user
+
+    def put(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+
+        current_password = serializer.validated_data.get("current_password")
+        if not self.object.check_password(current_password):
+            return Response({'detail': 'The current password provide is not currect'}, status=400)
+        self.object.set_password(serializer.data.get("new_password"))
+        self.object.save()
+        return Response({'detail': 'password change successful'}, status=200)

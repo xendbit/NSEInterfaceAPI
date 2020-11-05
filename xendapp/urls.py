@@ -13,5 +13,6 @@ urlpatterns = [
     path('auth/login', TokenObtainPairView.as_view(), name='auth_login'),
     path('auth/obtain-token', auth_views.get_token, name='obtain_token'),
     path('auth/token-refresh', TokenRefreshView.as_view(), name='auth_token_refresh'),
-    path('auth/logout', auth_views.logout, name='auth_logout')
+    path('auth/logout', auth_views.logout, name='auth_logout'),
+    path('auth/change-password', auth_views.PasswordUpdateView.as_view(), name='change_password')
 ]

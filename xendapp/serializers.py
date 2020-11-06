@@ -40,6 +40,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 class BuyRequestSerializer(serializers.Serializer):
+    art_id = serializers.IntegerField()
     buyer_id = serializers.CharField()
     seller_id = serializers.CharField()
     issuer_id = serializers.CharField()
@@ -53,6 +54,7 @@ class BuyRequestSerializer(serializers.Serializer):
 
 class ListRequestSerializer(serializers.Serializer):
     issuer_id = serializers.CharField()
+    art_id = serializers.IntegerField()
     security = serializers.CharField()
     number_of_tokens = serializers.IntegerField()
     artwork_value = serializers.FloatField()

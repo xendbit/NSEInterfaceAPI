@@ -149,6 +149,7 @@ class ArtExchangeUser(BaseAbstractModel):
 
 class ArtListing(BaseAbstractModel):
 
+    token_id = models.IntegerField(db_column='TOKEN_ID', null=True)
     seller_id = models.ForeignKey(ArtExchangeUser, on_delete=models.CASCADE, db_column='SELLER_ID')
     security = models.CharField(db_column='SECURITY', unique=True, max_length=100)
     number_of_tokens = models.IntegerField(db_column='NUMBER_OF_TOKEN')

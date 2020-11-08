@@ -3,7 +3,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from .views import artexchange_views, auth_views
+from .views import artexchange_views, auth_views, providus_views
 urlpatterns = [
     path('artexchange/new-user', artexchange_views.user_registration, name='artuser_registration'),
     path('artexchange/buy-request', artexchange_views.asset_buy_request, name='buy_request'),

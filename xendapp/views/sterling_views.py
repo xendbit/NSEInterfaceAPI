@@ -1,8 +1,6 @@
 import random
 import string
 import os
-from datetime import datetime
-from decimal import Decimal
 
 import requests
 from django.core.exceptions import ObjectDoesNotExist
@@ -13,8 +11,7 @@ from rest_framework.response import Response
 
 from xendapp import models
 from xendapp import serializers
-from xendapp.utils import convert_dict_keys_to_camel_case
-
+from xendapp.utils import convert_dict_keys_to_camel_case, account_transaction
 
 sterling_domain = os.getenv('STERLING_DOMAIN')
 auth_key = os.getenv('STERLING_AUTH_KEY')
@@ -22,39 +19,6 @@ version = os.getenv('STERLING_API_VERSION')
 product_code = os.getenv('STERLING_PRODUCT_CODE')
 accountt_officer_code = os.getenv('STERLING_ACCT_OFF_CODE')
 institution_code = os.getenv('STERLING_INST_CODE')
-
-def account_transaction(transaction_type, account_number, amount, narration, time=datetime.now(), reference=''):
-
-    amount_dec = Decimal(amount)
-
-    if transaction_type not in ['debit', 'credit']:
-        raise ValueError('Transaction type must be debit or credit')
-
-    account = models.BankAccount.objects.get(account_number=account_number)
-
-    if transaction_type == 'debit':
-        if amount_dec > account.balance:
-            raise ValueError('Account has insufficient fund')
-        account.balance -= amount_dec
-        account.save()
-
-    if transaction_type == 'credit':
-        account.balance += amount_dec
-        account.save()
-
-    try:
-        models.BankTransaction.objects.create(
-            account_number=account_number,
-            transaction_type=transaction_type,
-            narration=narration,
-            amount=amount_dec,
-            time=time,
-            transaction_reference=reference
-        )
-    except Exception as exc:
-        return Response({'detail': str(exc)}, status=400)
-
-    return Response({'detail': 'Transaction Successful', 'New balance': account.balance})
 
 
 @sensitive_variables('auth_key')
@@ -191,13 +155,13 @@ def create_sterling_account(data):
     status = 201 if resp_json.get('IsSuccessful') else 400
 
     if resp_json.get('IsSuccessful'):
+        bank = 'Sterling'
 
         models.BankAccount.objects.create(
             account_number=resp_json['Message']['AccountNumber'],
             fullname=resp_json['Message']['FullName'],
-            account_type=data.get('account_type'),
             bvn=bvn,
-            bank='sterling',
+            bank='Sterling',
             restriction_type='0',
             account_reference=f'{bvn}_{othernames}_{lastname}'
         )
@@ -208,7 +172,7 @@ def create_sterling_account(data):
         }
         _ = requests.post(pnd_deact_url, json=deact_data, headers=headers)
 
-    return resp_json, status
+    return resp_json, status, bank
 
 @sensitive_variables('auth_key')
 @api_view(http_method_names=['POST'])

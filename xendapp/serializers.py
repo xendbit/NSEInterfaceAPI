@@ -2,6 +2,7 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
 from .models import User, ArtExchangeUser, BankAccount, BankTransaction
+from .utils import SIX_DIGIT_CODE_LIST
 
 
 class AdminCreateUserSerializer(serializers.ModelSerializer):
@@ -90,3 +91,23 @@ class PasswordChangeSerializer(serializers.Serializer):
         validate_password(value)
         return value
 
+class ProvidusInterBankTransferSerializer(serializers.Serializer):
+    recipient_account_name = serializers.CharField()
+    amount = serializers.CharField()
+    narration = serializers.CharField()
+    source_account_name = serializers.CharField()
+    recipient_account_number = serializers.CharField()
+    recipient_bank = serializers.CharField()
+
+    def validate(self, data):
+        if not data.get('recipient_bank') in SIX_DIGIT_CODE_LIST:
+            raise serializers.ValidationError(
+                f'Invalid bank code provided selected. Bank code must be one of roles. Must be one of {SIX_DIGIT_CODE_LIST}')
+        return data
+
+class BankTransactionsSerializer(serializers.ModelSerializer):
+    bank = serializers.ReadOnlyField(source='get_bank')
+
+    class Meta:
+        model = BankTransaction
+        fields = ['bank', 'account_number', 'transaction_type', 'narration', 'time', 'amount']

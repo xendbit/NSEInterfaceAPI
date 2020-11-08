@@ -166,7 +166,6 @@ class BankAccount(BaseAbstractModel):
     account_number = models.CharField(max_length=10, db_column='ACCOUNT_NUMBER', unique=True)
     fullname = models.CharField(max_length=200, db_column='FULL_NAME', null=True)
     account_reference = models.CharField(max_length=200, db_column='ACCOUNT_REFERENCE', unique=True, null=True)
-    account_type = models.CharField(max_length=20, db_column='ACCOUNT_TYPE', null=True)
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, db_column='BALANCE')
     bvn = models.CharField(max_length=12, db_column='BVN', unique=True, null=True)
     bank = models.CharField(db_column='BANK', max_length=45, choices=BANK_CODES_CHOICES, blank=True, null=True)

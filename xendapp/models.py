@@ -162,6 +162,20 @@ class ArtListing(BaseAbstractModel):
         db_table = 'XB_ART_LISTING'
 
 
+class AssetTransfer(BaseAbstractModel):
+
+    seller_id = models.ForeignKey(ArtExchangeUser, on_delete=models.CASCADE, db_column='SELLER_ID', related_name='sales')
+    buyer_id = models.ForeignKey(ArtExchangeUser, on_delete=models.CASCADE, db_column='BUYER_ID', related_name='purchases')
+    asset_id = models.CharField(db_column='ASSET_ID', max_length=100)
+    asset_type = models.CharField(db_column='ASSET_TYPE', max_length=50, choices=[('Art', 'Art'), ('Estate', 'Estate')])
+    number_of_tokens = models.IntegerField(db_column='NUMBER_OF_TOKEN')
+    value = models.FloatField(db_column='VALUE')
+
+    class Meta:
+        managed = True
+        db_table = 'XB_ASSET_TRANSFER'
+
+
 class BankAccount(BaseAbstractModel):
     account_number = models.CharField(max_length=10, db_column='ACCOUNT_NUMBER', unique=True)
     fullname = models.CharField(max_length=200, db_column='FULL_NAME', null=True)
@@ -215,16 +229,3 @@ class PendingAssetTransfer(BaseAbstractModel):
         managed = True
         db_table = 'XB_PENDING_ASSET_TRANSFER'
 
-
-'''
-class PendingSterlingAccountCreation(BaseAbstractModel):
-    lastname = models.CharField(db_column='LASTNAME', max_length=50)
-    other_names = models.CharField(db_column='OTHER_NAMES', max_length=100)
-    bvn = models.CharField(db_column='BVN', max_length=12)
-    is_agent = models.BooleanField(db_column='IS_AGENT', default=False)
-    message = models.CharField(db_column='MESSAGE', max_length=255)
-
-    class Meta:
-        managed = True
-        db_table = 'XB_PENDING_STERLING_ACCOUNT'
-'''

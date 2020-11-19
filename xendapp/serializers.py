@@ -1,7 +1,7 @@
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
-from .models import User, ArtExchangeUser, BankAccount, BankTransaction
+from .models import User, ArtExchangeUser, BankAccount, BankTransaction, AssetTransfer, ArtListing
 from .utils import SIX_DIGIT_CODE_LIST
 
 
@@ -36,8 +36,29 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ArtExchangeUser
-        fields = '__all__'
+        exclude = ['is_deleted', 'created_at', 'updated_at', 'private_key', 'blockchain_address', 'blockchain_id', 'password']
         read_only_fields = ['is_deleted', 'createdAt', 'updatedAt', 'wallet_account_number']
+
+
+class AssetTransferSerializer(serializers.ModelSerializer):
+    '''Serializer for asset transfer records'''
+    buyer = serializers.ReadOnlyField(source='buyer_id.fullname')
+    seller = serializers.ReadOnlyField(source='seller_id.fullname')
+
+    class Meta:
+        model = AssetTransfer
+        exclude = ['is_deleted', 'created_at', 'updated_at']
+
+
+class AssetListingSerializer(serializers.ModelSerializer):
+    '''Serializer for asset listing records'''
+    issuer = serializers.ReadOnlyField(source='seller_id.fullname')
+    issuer_id = serializers.ReadOnlyField(source='seller_id.id')
+    date = serializers.ReadOnlyField(source='created_at')
+
+    class Meta:
+        model = ArtListing
+        exclude = ['is_deleted', 'created_at', 'updated_at', 'token_id', 'blockchain_id', 'qr_code']
 
 
 class BuyRequestSerializer(serializers.Serializer):
@@ -86,10 +107,16 @@ class PasswordChangeSerializer(serializers.Serializer):
     """
     current_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
+    confirm_password = serializers.CharField(required=True)
 
     def validate_new_password(self, value):
         validate_password(value)
         return value
+
+    def validate(self, data):
+        if data.get('new_password') != data.get('confirm_password'):
+            raise serializers.ValidationError("passwords do not match")
+        return data
 
 class ProvidusInterBankTransferSerializer(serializers.Serializer):
     recipient_account_name = serializers.CharField()

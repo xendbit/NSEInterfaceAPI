@@ -204,6 +204,15 @@ def asset_buy_request(request):
     providus_views.virtual_account_transfer(transfer_data)
     blockchain_resp = requests.post(f'{asset_transfer_url}', json=blockchain_data, headers=headers)
 
+    models.AssetTransfer.objects.create(
+        seller_id=seller,
+        buyer_id=buyer,
+        asset_id=art_id,
+        asset_type='Art',
+        number_of_tokens=number_of_tokens,
+        value=number_of_tokens * unit_price
+    )
+
     if not blockchain_resp.ok:
         models.PendingAssetTransfer.objects.create(
             buyer_id=blockchain_data.get('buyerId'),

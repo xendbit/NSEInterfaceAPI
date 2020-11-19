@@ -5,7 +5,6 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import UpdateAPIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.authtoken.models import Token
 
@@ -112,7 +111,7 @@ class PasswordUpdateView(UpdateAPIView):
 
         current_password = serializer.validated_data.get("current_password")
         if not self.object.check_password(current_password):
-            return Response({'detail': 'The current password provide is not currect'}, status=400)
-        self.object.set_password(serializer.data.get("new_password"))
+            return Response({'detail': 'The current password provided is not correct'}, status=400)
+        self.object.set_password(serializer.validated_data.get("new_password"))
         self.object.save()
         return Response({'detail': 'password change successful'}, status=200)

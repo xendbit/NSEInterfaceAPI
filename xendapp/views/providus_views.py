@@ -256,6 +256,10 @@ def providus_account_webhook(request):
     except Exception as exc:
         return Response({'detail': str(exc)}, 400)
 
+    blkchn_url = f'https://xendfilb.xendbit.net/api/x/user/fund-account/{account_number}/{amount_paid}'
+
+    blkchn_resp = requests.get(blkchn_url)
+
     return Response({'detail': 'Notification successfully processed'})
 
 

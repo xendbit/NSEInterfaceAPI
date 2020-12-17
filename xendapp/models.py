@@ -88,6 +88,7 @@ def validate_foreign_key(value):
 class User(PermissionsMixin, AbstractBaseUser):
     ROLE_CHOICES = [
         ('System Admin', 'System Admin'),
+        ('Investor', 'Investor')
     ]
 
     email = models.CharField(db_column='EMAIL', unique=True, max_length=100)
@@ -100,6 +101,7 @@ class User(PermissionsMixin, AbstractBaseUser):
     is_superuser = models.BooleanField(db_column='IS_SUPERUSER', default=False)
     role = models.CharField(max_length=50, db_column='ROLE', null=True, blank=True, choices=ROLE_CHOICES)
     image_url = models.CharField(max_length=400, db_column='IMAGE_URL', blank=True, default='')
+    id_image_url = models.CharField(max_length=400, db_column='ID_IMAGE_URL', blank=True, default='')
     is_deleted = models.BooleanField(db_column='IS_DELETED', default=False)
     created_at = models.DateTimeField(db_column='CREATED_AT', auto_now_add=True)
     updated_at = models.DateTimeField(db_column='UPDATED_AT', auto_now=True)
@@ -120,6 +122,7 @@ class User(PermissionsMixin, AbstractBaseUser):
 
 
 class ArtExchangeUser(BaseAbstractModel):
+    '''A model class for users who register via the NSE.'''
     ROLE_CHOICES = [
         ('Investor', 'Investor'),
         ('Issuer', 'Issuer')
@@ -163,6 +166,7 @@ class ArtListing(BaseAbstractModel):
 
 
 class AssetTransfer(BaseAbstractModel):
+    '''A model class of all asset transfers, both art and real estate'''
 
     seller_id = models.ForeignKey(ArtExchangeUser, on_delete=models.CASCADE, db_column='SELLER_ID', related_name='sales')
     buyer_id = models.ForeignKey(ArtExchangeUser, on_delete=models.CASCADE, db_column='BUYER_ID', related_name='purchases')
@@ -177,6 +181,8 @@ class AssetTransfer(BaseAbstractModel):
 
 
 class BankAccount(BaseAbstractModel):
+    '''A model of client bank accounts'''
+
     account_number = models.CharField(max_length=10, db_column='ACCOUNT_NUMBER', unique=True)
     fullname = models.CharField(max_length=200, db_column='FULL_NAME', null=True)
     account_reference = models.CharField(max_length=200, db_column='ACCOUNT_REFERENCE', unique=True, null=True)

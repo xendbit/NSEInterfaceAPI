@@ -224,6 +224,7 @@ def providus_account_webhook(request):
     '''Handles the notification sent by Providus when there is a credit on a reserved account'''
 
     request_data = request.data
+    api_key = os.getenv('BLOCKCHAIN_DEPOSIT_API_KEY')
 
     transaction_reference = request_data.get('transaction_reference')
     payment_reference = request_data.get('payment_reference')
@@ -257,8 +258,9 @@ def providus_account_webhook(request):
         return Response({'detail': str(exc)}, 400)
 
     blkchn_url = f'https://xendfilb.xendbit.net/api/x/user/fund-account/{account_number}/{amount_paid}'
+    headers = {'apiKey': api_key}
 
-    blkchn_resp = requests.get(blkchn_url)
+    blkchn_resp = requests.get(blkchn_url, headers=headers) # TODO check this response. If it is a failure, log the response
 
     return Response({'detail': 'Notification successfully processed'})
 

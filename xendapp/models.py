@@ -88,7 +88,8 @@ def validate_foreign_key(value):
 class User(PermissionsMixin, AbstractBaseUser):
     ROLE_CHOICES = [
         ('System Admin', 'System Admin'),
-        ('Investor', 'Investor')
+        ('Investor', 'Investor'),
+        ('Issuer', 'Issuer')
     ]
 
     email = models.CharField(db_column='EMAIL', unique=True, max_length=100)

@@ -18,6 +18,7 @@ urlpatterns = [
     path('auth/change-password', auth_views.PasswordUpdateView.as_view(), name='change_password'),
     path('providus/webhook', providus_views.providus_account_webhook, name='webhook'),
     path('providus/new-account', providus_views.providus_new_account, name='new_account'),
+    path('providus/account-transactions', providus_views.providus_account_transactions, name='new_account'),
     path('assets/users', assets_views.AssetUserListView.as_view(), name='assets_users'),
     path('assets/transfers', assets_views.AssetTransferListView.as_view(), name='assets_transfers'),
     path('assets/listings', assets_views.AssetListingListView.as_view(), name='assets_listings'),

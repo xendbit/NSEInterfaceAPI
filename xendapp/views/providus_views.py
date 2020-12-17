@@ -291,7 +291,23 @@ def providus_account_transactions(request):
 
     resp = requests.get(url, headers=headers)
     resp_json = resp.json()
-    return Response(resp_json)
+
+    if not resp_json.get('requestSuccessful'):
+        return Response({'detail': resp_json.get('responseMessage')})
+
+    response_body = resp_json.get('responseBody')
+    contents = response_body.get('content')
+    transactions = []
+    for content in contents:
+        transaction =  {
+                           'bank': 'Providus',
+                           'transaction_date': content.get('createdOn').split('T')[0],
+                           'transaction_type': 'Credit',
+                           'transaction_amount': content.get('amount'),
+                           "narration": content.get('paymentDescription')
+                       }
+        transactions.append(transaction)
+    return Response(transactions)
 
 
 @swagger_auto_schema( method='get', manual_parameters=[Parameter('account_number', IN_QUERY, type='string')])
@@ -319,7 +335,10 @@ def providus_deallocate_account(request):
 @swagger_auto_schema(method='post', request_body=serializers.BankTransactionsSerializer)
 @api_view(http_method_names=['POST'])
 @permission_classes([IsAuthenticated])
-def providus_account_transaction(request):
+def account_transaction(request):
+    '''This function internally updates records that correspond to Providus reserved accounts,
+        since the reserved accounts do not have their own ledgers
+    '''
 
     request_data = request.data
     serializer = serializers.BankTransactionsSerializer(data=request_data)

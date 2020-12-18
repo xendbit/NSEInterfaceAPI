@@ -3,31 +3,41 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import UpdateAPIView
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.authtoken.models import Token
 
 from .. import models, serializers, utils, permissions
+from . import providus_views
+from ..utils import upload_image
 
 artexchange_email = os.getenv('ARTEXCHANGE_EMAIL')
 
-class UserList(generics.CreateAPIView):
+class UserList(generics.ListCreateAPIView):
     """
         get:
         Return the list of all user objects
 
         post:
-        create a new user when logged in as an admin
+        create a new user
     """
 
     queryset = models.User.objects.filter(is_deleted=False)
     # permission_classes = [permissions.IsXendAdmin]
-    serializer_class = serializers.AdminCreateUserSerializer
+    serializer_class = serializers.UserSerializer
+    # parser_classes = [FormParser, MultiPartParser, JSONParser]
 
     def post(self, request):
 
         data = request.data
+        # data = data.copy()
+        # img = data.get('image_url')
+        # data['image_url'] = upload_image(img) if img else ''
+        #
+        # id_img = data.get('id_image_url')
+        # data['id_image_url'] = upload_image(id_img) if id_img else ''
 
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
@@ -35,6 +45,24 @@ class UserList(generics.CreateAPIView):
         serializer.validated_data['username'] = serializer.validated_data.get('email')
         serializer.validated_data['is_active'] = False
         del serializer.validated_data['confirm_password']
+
+        bvn = serializer.validated_data.get('bvn')
+        email = serializer.validated_data.get('email')
+        full_name = serializer.validated_data.get('full_name')
+        firstname = full_name.split(' ')[0]
+        providus_contract_code = os.getenv('PROVIDUS_CONTRACT_CODE')
+
+        data = {
+            'accountReference': f'{bvn}_{firstname}',
+            'accountName': full_name,
+            'currencyCode': "NGN",
+            'contractCode': providus_contract_code,
+            'customerEmail': email,
+            'customerName': full_name
+        }
+
+        resp_json, statuss, bank = providus_views.providus_reserve_account(data)
+        serializer.validated_data['wallet_account_number'] = resp_json['Message']['AccountNumber']
         serializer.save()
 
         payload = {

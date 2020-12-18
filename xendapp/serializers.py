@@ -5,21 +5,24 @@ from .models import User, ArtExchangeUser, BankAccount, BankTransaction, AssetTr
 from .utils import SIX_DIGIT_CODE_LIST
 
 
-class AdminCreateUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     """UserSerializer class"""
     confirm_password = serializers.CharField(max_length=200, write_only=True)
-    role = serializers.ReadOnlyField(source='get_role_display')
+
+    user_roles = ['Issuer', 'Investor']
 
     def validate(self, data):
         if data.get('password') != data.get('confirm_password'):
             raise serializers.ValidationError("passwords do not match")
+        if data.get('role') not in self.user_roles:
+            raise serializers.ValidationError(f"Please choose a role from the list: {self.user_roles}")
         return data
 
     class Meta:
         model = User
-        exclude = ['is_superuser', 'last_login']
+        exclude = ['is_superuser', 'last_login', 'groups', 'user_permissions']
         write_only_fields = ('password', 'confirm_password')
-        read_only_fields = ['id', 'created_at', 'role', 'username', 'is_active', 'is_staff', 'image_url', 'groups', 'user_permissions', 'is_deleted']
+        read_only_fields = ['wallet_account_number', 'id', 'created_at', 'username', 'is_active', 'is_staff', 'groups', 'user_permissions', 'is_deleted']
         extra_kwargs = {
             'password': {'write_only': True}
         }

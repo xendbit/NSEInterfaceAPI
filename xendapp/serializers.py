@@ -77,15 +77,16 @@ class BuyRequestSerializer(serializers.Serializer):
     market_type = serializers.CharField()
 
 
-class ListRequestSerializer(serializers.Serializer):
-    issuer_id = serializers.CharField()
-    art_id = serializers.IntegerField()
-    security = serializers.CharField()
+class ListingRequestSerializer(serializers.Serializer):
+    issuer_id = serializers.IntegerField()
+    asset_id = serializers.CharField()
     number_of_tokens = serializers.IntegerField()
     artwork_value = serializers.FloatField()
     unit_price = serializers.FloatField()
     listing_start_date = serializers.CharField()
     listing_end_date = serializers.CharField()
+    description = serializers.CharField()
+    asset_type = serializers.CharField()
 
 
 class FundTransferSerializer(serializers.Serializer):

@@ -160,8 +160,10 @@ class ArtExchangeUser(BaseAbstractModel):
 class ArtListing(BaseAbstractModel):
 
     token_id = models.IntegerField(db_column='TOKEN_ID', null=True)
-    seller_id = models.ForeignKey(ArtExchangeUser, on_delete=models.CASCADE, db_column='SELLER_ID')
-    security = models.CharField(db_column='SECURITY', unique=True, max_length=100)
+    seller_id = models.ForeignKey(User, on_delete=models.CASCADE, db_column='SELLER_ID')
+    asset_id = models.CharField(db_column='ASSET_ID', max_length=20)
+    description = models.CharField(db_column='DESCRIPTION', max_length=300)
+    asset_type = models.CharField(db_column='ASSET_TYPE', max_length=15, choices=[('art', 'art'), ('real estate', 'real estate')])
     number_of_tokens = models.IntegerField(db_column='NUMBER_OF_TOKEN')
     artwork_value = models.FloatField(db_column='ARTWORK_VALUE')
     qr_code = models.CharField(max_length=255, db_column='QR_CODE', null=True)

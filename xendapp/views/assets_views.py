@@ -229,31 +229,32 @@ def asset_buy_request(request):
     return Response({'detail': f'Request successful', 'security': security, 'numberOfUnits': number_of_tokens})
 
 
-@swagger_auto_schema(method='post', request_body=serializers.ListRequestSerializer)
+@swagger_auto_schema(method='post', request_body=serializers.ListingRequestSerializer)
 @api_view(http_method_names=['POST'])
 @authentication_classes([TokenAuthentication])
-@permission_classes([permissions.IsArtexchange])
+# @permission_classes([permissions.IsArtexchange])
 def asset_listing(request):
     # TODO update the permission_class to check for the request origin, in Production
 
     data = request.data
-    serializer = serializers.ListRequestSerializer(data=data)
+    serializer = serializers.ListingRequestSerializer(data=data)
     serializer.is_valid(raise_exception=True)
-    art_id = serializer.validated_data.get('art_id')
-    security = serializer.validated_data.get('security')
+    asset_id = serializer.validated_data.get('asset_id')
+    asset_type = serializer.validated_data.get('asset_type')
+    asset_description = serializer.validated_data.get('description')
     issuer_id = serializer.validated_data.get('issuer_id')
-    issuer = models.ArtExchangeUser.objects.get(user_id=issuer_id)
+    issuer = models.User.objects.get(id=issuer_id)
     number_of_tokens = serializer.validated_data.get('number_of_tokens')
     price = serializer.validated_data.get('unit_price')
     artwork_value = number_of_tokens * price
 
     data = {
-        'tokenId': art_id,
-        'symbol': security,
-        'issuerId': issuer.id,
-        'name': security,
+        'tokenId': asset_id,
+        'symbol': asset_id,
+        'issuerId': issuer_id,
+        'name': asset_id,
         'totalQuantity': number_of_tokens,
-        'description': f'Art {security} issued by {issuer.fullname}',
+        'description': asset_description,
         'price': price,
         'listing_start_date': serializer.validated_data.get('listing_start_date'),
         'listing_end_date': serializer.validated_data.get('listing_end_date'),
@@ -272,13 +273,15 @@ def asset_listing(request):
         qr_code = utils.generate_qrcode(serializer.validated_data.get('security'))
         models.ArtListing.objects.create(
             seller_id=issuer,
-            security=security,
+            asset_id=asset_id,
+            description=asset_description,
             number_of_tokens=number_of_tokens,
             artwork_value=artwork_value,
             blockchain_id=resp.json().get('id'),
+            asset_type=asset_type,
             qr_code=qr_code
         )
-        return Response({'detail': 'Asset listing successfully completed.', 'assetId': art_id, 'qr_code': qr_code})
+        return Response({'detail': 'Asset listing successfully completed.', 'assetId': asset_id})
     else:
         error = resp.json().get("error")
         if type(error) is list:

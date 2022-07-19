@@ -54,6 +54,7 @@ class UserManager(BaseUserManager):
         user.set_password(password)
         user.save()
 
+
 class BaseAbstractModel(models.Model):
     """
     This model defines base models that implements common fields like:
@@ -77,7 +78,7 @@ class BaseAbstractModel(models.Model):
 
 
 def validate_foreign_key(value):
-    '''Checks that a record is not created that links to a deleted parent in FK relationship'''
+    """Checks that a record is not created that links to a deleted parent in FK relationship"""
     if value.is_deleted:
         raise ValidationError(
             f'The provided {type(value).__name__.lower()} record is deleted: {value}',
@@ -109,6 +110,10 @@ class User(PermissionsMixin, AbstractBaseUser):
     id_number = models.CharField(max_length=20, db_column='ID_NUMBER')
     id_image_url = models.CharField(max_length=400, db_column='ID_IMAGE_URL', blank=True, default='')
     image_url = models.CharField(max_length=400, db_column='IMAGE_URL', blank=True, default='')
+    blockchain_password = models.CharField(max_length=300, db_column='BLOCKCHAIN_PASSWORD', null=True)
+    blockchain_private_key = models.CharField(max_length=300, db_column='PRIVATE_KEY', null=True)
+    blockchain_address = models.CharField(max_length=200, db_column='BLOCKCHAIN_ADDRESS', null=True)
+    blockchain_id = models.IntegerField(null=True, db_column='BLOCKCHAIN_ID')
     is_deleted = models.BooleanField(db_column='IS_DELETED', default=False)
     created_at = models.DateTimeField(db_column='CREATED_AT', auto_now_add=True)
     updated_at = models.DateTimeField(db_column='UPDATED_AT', auto_now=True)
@@ -129,7 +134,7 @@ class User(PermissionsMixin, AbstractBaseUser):
 
 
 class ArtExchangeUser(BaseAbstractModel):
-    '''A model class for users who register via the NSE.'''
+    """A model class for users who register via the NSE."""
     ROLE_CHOICES = [
         ('Investor', 'Investor'),
         ('Issuer', 'Issuer')
@@ -175,7 +180,7 @@ class ArtListing(BaseAbstractModel):
 
 
 class AssetTransfer(BaseAbstractModel):
-    '''A model class of all asset transfers, both art and real estate'''
+    """A model class of all asset transfers, both art and real estate"""
 
     seller_id = models.ForeignKey(ArtExchangeUser, on_delete=models.CASCADE, db_column='SELLER_ID', related_name='sales')
     buyer_id = models.ForeignKey(ArtExchangeUser, on_delete=models.CASCADE, db_column='BUYER_ID', related_name='purchases')
@@ -190,7 +195,7 @@ class AssetTransfer(BaseAbstractModel):
 
 
 class BankAccount(BaseAbstractModel):
-    '''A model of client bank accounts'''
+    """A model of client bank accounts"""
 
     account_number = models.CharField(max_length=10, db_column='ACCOUNT_NUMBER', unique=True)
     fullname = models.CharField(max_length=200, db_column='FULL_NAME', null=True)
@@ -236,11 +241,10 @@ class PendingAssetTransfer(BaseAbstractModel):
     asset_issuer_id = models.IntegerField(db_column='ASSET_ISSUER_ID', null=True)
     seller_id = models.IntegerField(db_column='SELLER_ID')
     asset_name = models.CharField(db_column='ASSET_NAME', max_length=20)
-    quantity =  models.IntegerField(db_column='QUANTITY')
+    quantity = models.IntegerField(db_column='QUANTITY')
     unit_price = models.FloatField(db_column='UNIT_PRICE')
     market_type = models.CharField(db_column='MARKET_TYPE', max_length=20)
 
     class Meta:
         managed = True
         db_table = 'XB_PENDING_ASSET_TRANSFER'
-

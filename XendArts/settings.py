@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-DEBUG = True
+DEBUG = os.getenv('DEBUG')
 
 # ALLOWED_HOSTS = []
 
@@ -102,18 +102,13 @@ TEMPLATES = [
 WSGI_APPLICATION = 'XendArts.wsgi.application'
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
-        'OPTIONS': {
-            'isolation_level': 'repeatable read',
-            'sslmode': ''
-        }
-
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("POSTGRES_DB"),
+        "HOST": os.getenv("POSTGRES_HOST"),
+        "PORT": os.getenv("POSTGRES_PORT"),
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASS"),
     }
 }
 
@@ -138,4 +133,3 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 ADMINS = [('XendCredit Admin', 'admin@xendcredit.com'), ('Victor', 'victor.adukwu@xendcredit.com')]
 
 django_heroku.settings(locals())
-del DATABASES['default']['OPTIONS']['sslmode']

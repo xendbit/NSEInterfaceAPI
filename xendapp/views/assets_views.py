@@ -11,8 +11,7 @@ from .. import models, serializers, utils, permissions, filters
 from . import sterling_views, providus_views
 
 product_code = os.getenv('STERLING_PRODUCT_CODE')
-accountt_officer_code = os.getenv('STERLING_ACCT_OFF_CODE')
-asset_transfer_url = os.getenv('ASSET_TRANSFER_URL')
+account_officer_code = os.getenv('STERLING_ACCT_OFF_CODE')
 blockchain_domain = os.getenv('BLOCKCHAIN_DOMAIN')
 blockchain_api_key = os.getenv('BLOCKCHAIN_API_KEY')
 providus_contract_code = os.getenv('PROVIDUS_CONTRACT_CODE')
@@ -23,7 +22,7 @@ providus_contract_code = os.getenv('PROVIDUS_CONTRACT_CODE')
 @authentication_classes([TokenAuthentication])
 @permission_classes([permissions.IsArtexchange])
 def user_registration(request):
-    '''Called when a user is registered on ArtExchange platform'''
+    """Called when a user is registered on ArtExchange platform"""
     data = request.data
     serializer = serializers.RegistrationSerializer(data=data)
     serializer.is_valid(raise_exception=True)
@@ -48,7 +47,7 @@ def user_registration(request):
         'LastName': fullname,
         'OtherNames': '',
         'BVN': bvn,
-        'AccountOfficerCode': accountt_officer_code,
+        'AccountOfficerCode': account_officer_code,
         'NotificationPreference': 0,
         'TransactionPermission': 1
     }
@@ -122,7 +121,7 @@ def user_registration(request):
 @authentication_classes([TokenAuthentication])
 @permission_classes([permissions.IsArtexchange])
 def asset_buy_request(request):
-    '''Gets called when an investor places an asset buy request'''
+    """Gets called when an investor places an asset buy request"""
 
     data = request.data
     serializer = serializers.BuyRequestSerializer(data=data)
@@ -292,7 +291,7 @@ def asset_listing(request):
 
 
 class AssetUserListView(generics.ListAPIView):
-    '''All Asset Users'''
+    """All Asset Users"""
 
     serializer_class = serializers.RegistrationSerializer
     filterset_class = filters.AssetsUserFilter
@@ -302,7 +301,7 @@ class AssetUserListView(generics.ListAPIView):
 
 
 class AssetTransferListView(generics.ListAPIView):
-    '''All Asset Transfers'''
+    """All Asset Transfers"""
 
     serializer_class = serializers.AssetTransferSerializer
     filterset_class = filters.AssetTransferFilter
@@ -312,7 +311,7 @@ class AssetTransferListView(generics.ListAPIView):
 
 
 class AssetListingListView(generics.ListAPIView):
-    '''All Asset Listings'''
+    """All Asset Listings"""
 
     serializer_class = serializers.AssetListingSerializer
     # filterset_class = filters.AssetTransferFilter

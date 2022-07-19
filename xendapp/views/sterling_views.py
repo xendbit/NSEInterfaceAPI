@@ -62,7 +62,6 @@ def sterling_activate_pnd(request):
 @permission_classes([IsAuthenticated])
 def sterling_deactivate_pnd(request):
 
-
     url = f'{sterling_domain}/ThirdPartyAPIService/APIService/Account/DeActivatePND'
 
     account, resp = sterling_pnd_status(url, request)
@@ -92,7 +91,6 @@ def sterling_transfer(request_data):
 
     url = f'{sterling_domain}/ThirdPartyAPIService/APIService/Transfer/LocalFundsTransfer'
     pnd_deact_url = f'{sterling_domain}/ThirdPartyAPIService/APIService/Account/DeActivatePND'
-
 
     from_account_number = request_data.get('from_account_number')
     to_account_number = request_data.get('to_account_number')
@@ -127,9 +125,9 @@ def sterling_transfer(request_data):
 
     return resp_json, status_code
 
+
 @api_view(http_method_names=['POST'])
 @permission_classes([IsAuthenticated])
-
 def sterling_local_transfer(request):
 
     resp, status_code = sterling_transfer(request.data)
@@ -174,6 +172,7 @@ def create_sterling_account(data):
 
     return resp_json, status, bank
 
+
 @sensitive_variables('auth_key')
 @api_view(http_method_names=['POST'])
 @permission_classes([IsAuthenticated])
@@ -188,7 +187,6 @@ def sterling_new_account(request):
     middlename = serializer.validated_data.get('middle_name')
     bvn = serializer.validated_data.get('bvn')
     othernames = firstname + ' ' + middlename if middlename else firstname
-
 
     if models.BankAccount.objects.filter(bvn=bvn).exists():
         return Response({'detail': 'An account already exists for this bvn.'}, status=400)
@@ -213,7 +211,6 @@ def sterling_new_account(request):
 @api_view()
 @permission_classes([IsAuthenticated])
 def sterling_account_balance(request):
-
 
     account_number = request.query_params.get('account_number')
 

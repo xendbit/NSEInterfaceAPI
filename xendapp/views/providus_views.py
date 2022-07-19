@@ -138,7 +138,6 @@ def providus_reserve_account(payload):
         'Authorization': f'Bearer {token}'
     }
 
-
     resp = requests.post(url, json=payload, headers=headers)
     resp_json = resp.json()
 
@@ -179,7 +178,7 @@ def providus_reserve_account(payload):
 @swagger_auto_schema(method='post', request_body=serializers.NewAccountSerializer)
 @api_view(http_method_names=['POST'])
 def providus_new_account(request):
-    '''Creates a Providus bank account for an agent or beneficiary'''
+    """Creates a Providus bank account for an agent or beneficiary"""
 
     request_data = request.data
     serializer = serializers.NewAccountSerializer(data=request_data)
@@ -205,6 +204,7 @@ def providus_new_account(request):
 
     return Response(resp_json, status=status)
 
+
 def virtual_account_transfer(data):
 
     from_account_number = data.get('from_account_number')
@@ -221,7 +221,7 @@ def virtual_account_transfer(data):
 @api_view(http_method_names=['POST'])
 @schema(None)
 def providus_account_webhook(request):
-    '''Handles the notification sent by Providus when there is a credit on a reserved account'''
+    """Handles the notification sent by Providus when there is a credit on a reserved account"""
 
     request_data = request.data
     api_key = os.getenv('BLOCKCHAIN_DEPOSIT_API_KEY')
@@ -260,7 +260,7 @@ def providus_account_webhook(request):
     blkchn_url = f'https://xendfilb.xendbit.net/api/x/user/fund-account/{account_number}/{amount_paid}'
     headers = {'apiKey': api_key}
 
-    blkchn_resp = requests.get(blkchn_url, headers=headers) # TODO check this response. If it is a failure, log the response
+    blkchn_resp = requests.get(blkchn_url, headers=headers)  # TODO check this response. If it is a failure, log the response
 
     return Response({'detail': 'Notification successfully processed'})
 
@@ -272,7 +272,7 @@ def providus_account_webhook(request):
 ])
 @api_view()
 def providus_account_transactions(request):
-    '''Returns all transactions on a virtual account'''
+    """Returns all transactions on a virtual account, as returned by a call to Providus"""
 
     account_number = request.query_params.get('account_number')
     page = request.query_params.get('page', 0)
@@ -314,7 +314,7 @@ def providus_account_transactions(request):
 @api_view()
 @schema(None)
 def providus_deallocate_account(request):
-    '''Deallocate a reserved account'''
+    """Deallocate a reserved account"""
 
     account_number = request.query_params.get('account_number')
     token = providus_get_token()
@@ -331,14 +331,13 @@ def providus_deallocate_account(request):
     return Response(resp_json)
 
 
-
 @swagger_auto_schema(method='post', request_body=serializers.BankTransactionsSerializer)
 @api_view(http_method_names=['POST'])
 @permission_classes([IsAuthenticated])
 def account_transaction(request):
-    '''This function internally updates records that correspond to Providus reserved accounts,
+    """This function internally updates records that correspond to Providus reserved accounts,
         since the reserved accounts do not have their own ledgers
-    '''
+    """
 
     request_data = request.data
     serializer = serializers.BankTransactionsSerializer(data=request_data)

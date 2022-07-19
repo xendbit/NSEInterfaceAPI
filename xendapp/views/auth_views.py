@@ -1,4 +1,6 @@
 import os
+
+
 from django.contrib.auth.hashers import make_password
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
@@ -13,7 +15,9 @@ from .. import models, serializers, utils, permissions
 from . import providus_views
 from ..utils import upload_image
 
+
 artexchange_email = os.getenv('ARTEXCHANGE_EMAIL')
+
 
 class UserList(generics.ListCreateAPIView):
     """
@@ -63,7 +67,32 @@ class UserList(generics.ListCreateAPIView):
 
         resp_json, statuss, bank = providus_views.providus_reserve_account(data)
         serializer.validated_data['wallet_account_number'] = resp_json['Message']['AccountNumber']
-        serializer.save()
+        user = serializer.save()
+
+        blockchain_api_key = os.getenv('BLOCKCHAIN_API_KEY')
+        blockchain_domain = os.getenv('BLOCKCHAIN_DOMAIN')
+        headers = {
+            'api-key': blockchain_api_key
+        }
+
+        blockchain_url = f'{blockchain_domain}user/new-address/{user.id}'
+        blockchain_resp = requests.get(blockchain_url, headers=headers)
+        if blockchain_resp.ok:
+
+            resp_json = blockchain_resp.json()
+            password = resp_json.get('password')
+            private_key = resp_json.get('privateKey')
+            blockchain_address = resp_json.get('address')
+            blockchain_id = resp_json.get('id')
+
+            models.User.objects.filter(id=user.id).update(
+                blockchain_password=password,
+                blockchain_id=blockchain_id,
+                blockchain_address=blockchain_address,
+                blockchain_private_key=private_key
+            )
+        else:
+            return Response({'detail': blockchain_resp.text}, status=500)
 
         payload = {
             'message': "Successfully signed up",
@@ -135,7 +164,6 @@ class PasswordUpdateView(UpdateAPIView):
         self.object = self.get_object()
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-
 
         current_password = serializer.validated_data.get("current_password")
         if not self.object.check_password(current_password):

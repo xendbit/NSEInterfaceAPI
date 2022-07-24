@@ -28,12 +28,6 @@ itypes==1.2.0
 Jinja2==2.11.2
 lml==0.1.0
 MarkupSafe==1.1.1
-mypy==0.790
-mypy-extensions==0.4.3
-mysql-connector-python==8.0.22
-mysqlclient==2.0.1
-numpy==1.19.3
-opencv-python==4.4.0.44
 packaging==20.4
 Pillow==8.0.1
 protobuf==3.13.0
@@ -52,7 +46,6 @@ ruamel.yaml==0.16.12
 ruamel.yaml.clib==0.2.2
 six==1.15.0
 sqlparse==0.4.1
-typed-ast==1.4.1
 typing-extensions==3.7.4.3
 tzlocal==2.1
 uritemplate==3.0.1

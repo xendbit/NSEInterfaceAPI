@@ -1,5 +1,5 @@
 import os
-
+import requests
 
 from django.contrib.auth.hashers import make_password
 from rest_framework import generics, status
@@ -138,7 +138,7 @@ def logout(request):
 @api_view()
 @permission_classes([permissions.IsXendAdmin])
 def get_token(request):
-    '''returns a token for the ArtExchange user'''
+    """returns a token for the ArtExchange user"""
     user = models.User.objects.get(email=artexchange_email)
     existing_tokens = Token.objects.filter(user_id=user.id)
     if existing_tokens.exists():

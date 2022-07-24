@@ -38,7 +38,7 @@ class UserManager(BaseUserManager):
         user.save()
         return user
 
-    def create_superuser(self, first_name=None, last_name=None, email=None, password=None):
+    def create_superuser(self, email=None, password=None):
         """Create a `User` who is also a superuser"""
 
         if not email:
